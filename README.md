@@ -1,5 +1,5 @@
 # OpenRTX
-## Compile
+## Build instructions
 ```sh
 distrobox create -n openRtx -i ubuntu:latest # Optional
 sudo apt update
