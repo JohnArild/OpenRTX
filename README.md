@@ -1,4 +1,21 @@
 # OpenRTX
+## Compile
+```sh
+distrobox create -n openRtx -i ubuntu:latest # Optional
+sudo apt update
+sudo apt install python3-pip gcc pkg-config libsdl2-dev wget ninja-build libcodec2-dev codec2 git libreadline-dev libusb-1.0-0-dev cmake g++
+sudo pip3 install meson
+git clone https://github.com/OpenRTX/OpenRTX.git
+git clone https://github.com/v0l/radio_tool
+cd OpenRTX
+cmake -S ../radio_tool -B build-radio_tool
+cmake --build build-radio_tool --parallel 8
+cp build-radio_tool/radio_tool .
+meson setup build_linux
+ninja -C build_linux openrtx_linux -j4
+build_linux/openrtx_linux # Run the executable
+```
+
 ## Modular Open Source Radio Firmware
 
 OpenRTX is a free and open source firmware for digital amateur radio devices, top-down designed
