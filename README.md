@@ -1,19 +1,25 @@
 # OpenRTX
 ## Build instructions
+Tested on Ubuntu 22.04 and Ubuntu 23.10
 ```sh
-distrobox create -n openRtx -i ubuntu:latest # Optional
+# Optional container
+sudo apt install distrobox
+distrobox create -n openRtx -i ubuntu:latest
+distrobox enter openRtx
+# Prerequisites
 sudo apt update
-sudo apt install python3-pip gcc pkg-config libsdl2-dev wget ninja-build libcodec2-dev codec2 git libreadline-dev libusb-1.0-0-dev cmake g++
-sudo pip3 install meson
+sudo apt install python3-pip gcc pkg-config libsdl2-dev wget ninja-build libcodec2-dev codec2 git libreadline-dev libusb-1.0-0-dev cmake g++ dfu-util meson
+# Clone and build
 git clone https://github.com/OpenRTX/OpenRTX.git
-git clone https://github.com/v0l/radio_tool
 cd OpenRTX
-cmake -S ../radio_tool -B build-radio_tool
-cmake --build build-radio_tool --parallel 8
-cp build-radio_tool/radio_tool .
+git clone https://github.com/v0l/radio_tool build_radio_tool
+cmake -S build_radio_tool -B build_radio_tool -Wno-dev
+cmake --build build_radio_tool --parallel 8
+cp build_radio_tool/radio_tool .
 meson setup build_linux
-ninja -C build_linux openrtx_linux -j4
-build_linux/openrtx_linux # Run the executable
+ninja -C build_linux openrtx_linux -j8
+# Run the executable
+build_linux/openrtx_linux
 ```
 
 ## Modular Open Source Radio Firmware
