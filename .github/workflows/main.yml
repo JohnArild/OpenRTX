@@ -4,25 +4,25 @@ on:
     branches: [ master ]
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout repo
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         submodules: recursive
     - name: install-deps
       run: |
-        sudo apt update
-        sudo apt install python3-pip gcc pkg-config libsdl2-dev wget ninja-build libcodec2-dev codec2
+        sudo apt-get update
+        sudo apt-get install -y python3-pip gcc pkg-config libsdl2-dev wget ninja-build libcodec2-dev codec2 git libreadline-dev libusb-1.0-0-dev cmake g++ dfu-util meson
         wget -O /tmp/MiosixToolchainInstaller.run https://miosix.org/toolchain/MiosixToolchainInstaller.run
         sudo sh /tmp/MiosixToolchainInstaller.run
-        sudo pip3 install meson
-        wget -O /tmp/radio_tool.deb https://github.com/v0l/radio_tool/releases/download/v0.1.0/radio_tool-0.1.0-Linux.deb
-        sudo dpkg -i /tmp/radio_tool.deb
-#       sudo wget -O /usr/bin/bin2sgl https://raw.githubusercontent.com/rogerclarkmelbourne/OpenGD77/master/firmware/tools/bin2sgl
-#       sudo wget -O /usr/bin/bin2sgl.Linux https://raw.githubusercontent.com/rogerclarkmelbourne/OpenGD77/master/firmware/tools/bin2sgl.Linux
-#       sudo wget -O /usr/bin/gd-77_firmware_loader.py https://raw.githubusercontent.com/rogerclarkmelbourne/OpenGD77/master/tools/Python/FirmwareLoader/gd-77_firmware_loader.py
-#       sudo chmod +x /usr/bin/bin2sgl /usr/bin/bin2sgl.Linux /usr/bin/gd-77_firmware_loader.py
+    - name: build-radio-tool
+      run: |
+        cd ${{github.workspace}}
+        git clone https://github.com/v0l/radio_tool build_radio_tool
+        cmake -S build_radio_tool -B build_radio_tool -Wno-dev
+        cmake --build build_radio_tool --parallel 8
+        cp build_radio_tool/radio_tool .
     - name: meson-setup
       run: |
         cd ${{github.workspace}}
@@ -36,9 +36,4 @@ jobs:
         ninja -C build_arm openrtx_mduv3x0_wrap -j4
         ninja -C build_arm openrtx_gd77_bin -j4
         ninja -C build_arm openrtx_dm1801_bin -j4
-    - uses: actions/upload-artifact@v2
-      with:
-        name: release-bins
-        path: |
-          ${{github.workspace}}/build_arm/openrtx_*_wrap*
-          ${{github.workspace}}/build_linux/openrtx_linux
+

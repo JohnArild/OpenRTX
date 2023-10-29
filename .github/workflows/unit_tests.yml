@@ -6,7 +6,7 @@ on:
 
 jobs:
   unit-test:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -14,18 +14,15 @@ jobs:
           submodules: recursive
       - name: install-deps
         run: |
-          sudo apt update
-          sudo apt install git pkg-config build-essential meson libsdl2-dev libreadline-dev dfu-util cmake libusb-1.0-0 libusb-1.0-0-dev
-      - name: build install codec2
+          sudo apt-get update
+          sudo apt-get install -y python3-pip gcc pkg-config libsdl2-dev wget ninja-build libcodec2-dev codec2 git libreadline-dev libusb-1.0-0-dev cmake g++ dfu-util meson
+      - name: build-radio-tool
         run: |
           cd ${{github.workspace}}
-          meson subprojects download
-          cd subprojects/codec2
-          mkdir build_linux
-          cd build_linux
-          cmake ..
-          make
-          sudo make install
+          git clone https://github.com/v0l/radio_tool build_radio_tool
+          cmake -S build_radio_tool -B build_radio_tool -Wno-dev
+          cmake --build build_radio_tool --parallel 8
+          cp build_radio_tool/radio_tool .
       - name: setup meson
         run: |
           cd ${{github.workspace}}
